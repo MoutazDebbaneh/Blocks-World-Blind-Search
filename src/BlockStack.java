@@ -23,6 +23,10 @@ public class BlockStack {
         }
     }
 
+    int size() {
+        return this._stack.size();
+    }
+
     static public BlockStack SpecialBlockStack(Character from, Character to) {
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int start = alphabet.indexOf(Character.toUpperCase(from));
