@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Node {
 	ArrayList<BlockStack> stacks;
@@ -18,16 +20,9 @@ public class Node {
 			if (this.stacks.size() != that.stacks.size())
 				return false;
 			for (int i = 0; i < this.stacks.size(); i++) {
-				// System.out.println("Comparing stacks: ");
-				// this.stacks.get(i).decoratedPrint();
-				// that.stacks.get(i).decoratedPrint();
 				if (!this.stacks.get(i).equals(that.stacks.get(i))) {
-					// BlockStack.showHitStat();
 					return false;
 				}
-				// else {
-				// BlockStack.showHitStat();
-				// }
 			}
 			return true;
 		} else
@@ -55,8 +50,8 @@ public class Node {
 		return newNode;
 	}
 
-	ArrayList<Node> neighbors() {
-		var result = new ArrayList<Node>();
+	Set<Node> neighbors() {
+		Set<Node> result = new HashSet<Node>();
 		for (int i = 0; i < stacks.size(); ++i) {
 			var stack = stacks.get(i);
 			// in this case I can move from this stack
@@ -72,7 +67,7 @@ public class Node {
 					// target new vertex
 					Node neighbor = this.move(i, j);
 					// result.contains(neighbor) could be unnecessary
-					if (!neighbor.equals(this) && !result.contains(neighbor)) {
+					if (!neighbor.equals(this)) {
 						// add neighbor to neighbors
 						result.add(neighbor);
 					}
@@ -117,11 +112,47 @@ public class Node {
 		var arr = new ArrayList<String>();
 		arr.add("BC");
 		arr.add("AD");
+		arr.add("EF");
 		var initialState = new Node(arr);
 		initialState.decoratedPrint("initial node");
+		int cnt = 0;
+
+		// Stack<Node> OpenSet = new Stack<Node>();
+		Set<Node> ClosedSet = new HashSet<Node>();
+
 		for (var neighbor : initialState.neighbors()) {
-			neighbor.decoratedPrint("neighbor :");
+			if (!ClosedSet.contains(neighbor)) {
+				cnt++;
+				for (Node neighbor2 : neighbor.neighbors()) {
+					if (!ClosedSet.contains(neighbor2)) {
+						cnt++;
+						for (Node neighbor3 : neighbor2.neighbors()) {
+							if (!ClosedSet.contains(neighbor3)) {
+								cnt++;
+								for (Node neighbor4 : neighbor3.neighbors()) {
+									if (!ClosedSet.contains(neighbor4)) {
+										cnt++;
+										for (Node neighbor5 : neighbor4.neighbors()) {
+											cnt++;
+											ClosedSet.add(neighbor5);
+										}
+									}
+									ClosedSet.add(neighbor4);
+								}
+							}
+							ClosedSet.add(neighbor3);
+						}
+					}
+					ClosedSet.add(neighbor2);
+				}
+			}
+			ClosedSet.add(neighbor);
 		}
+		System.out.print("states discover : ");
+		System.out.println(cnt);
+		BlockStack.showHitStat();
+		// this example shows 0.4 hit rate
+		// which is a decent optimization
 	}
 
 }

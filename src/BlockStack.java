@@ -6,10 +6,11 @@ public class BlockStack implements Comparable<BlockStack> {
     Stack<Character> _stack = new Stack<Character>();
 
     static int RefEqualityHit = 0;
+    static int EqualityCall = 0;
 
     static void showHitStat() {
-        System.out.print("BlockStack.RefEqualityHit : ");
-        System.out.println(BlockStack.RefEqualityHit);
+        System.out.println("RefEqualityHit / EqualityCall : ");
+        System.out.println((double) BlockStack.RefEqualityHit / EqualityCall);
     }
 
     private boolean equalStacks(BlockStack other) {
@@ -25,6 +26,7 @@ public class BlockStack implements Comparable<BlockStack> {
 
     @Override
     public boolean equals(Object obj) {
+        EqualityCall++;
         if (this == obj) {
             BlockStack.RefEqualityHit++;
             return true;
