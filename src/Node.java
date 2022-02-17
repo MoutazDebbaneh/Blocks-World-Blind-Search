@@ -137,7 +137,8 @@ public class Node implements Comparable<Node> {
 	void decoratedPrint(String title) {
 		System.out.println(title);
 		for (BlockStack blockStack : this.stacks) {
-			blockStack.decoratedPrint();
+			if (blockStack.size() > 0)
+				blockStack.decoratedPrint();
 		}
 	}
 
@@ -146,7 +147,8 @@ public class Node implements Comparable<Node> {
 		System.out.println("depth = " + this.depth);
 		System.out.println("g = " + this.g);
 		for (BlockStack blockStack : this.stacks) {
-			blockStack.decoratedPrint();
+			if (blockStack.size() > 0)
+				blockStack.decoratedPrint();
 		}
 	}
 
