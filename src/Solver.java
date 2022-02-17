@@ -61,49 +61,42 @@ public class Solver {
         return answer;
     }
 
-    public SolutionWithStatistics solveDFSLimited(int n) {
-        InitialState.Parent = null;
-        var answer = new SolutionWithStatistics();
-        Stack<Node> OpenSet = new Stack<Node>();
-        HashSet<String> ClosedSet = new HashSet<String>();
-        OpenSet.push(this.InitialState);
+    static int callsToSolveDFSLimited = 0;
+
+    public Node solveDFSLimited(Node currNode, int limit, HashSet<String> ClosedSet) {
+        callsToSolveDFSLimited++;
         ClosedSet.add(this.InitialState.toString());
-        Node front = InitialState;
-        while (!OpenSet.empty()) {
-            front = OpenSet.pop();
-            if (isFinal(front))
-                break;
-            if (front.depth > n)
-                continue;
-            var neighbors = front.neighbors();
-            for (var neighbor : neighbors) {
-                if (!ClosedSet.contains(neighbor.toString())) {
-                    OpenSet.push(neighbor);
-                    ClosedSet.add(neighbor.toString());
-                }
+        if (isFinal(currNode))
+            return currNode;
+        if (currNode.depth >= limit)
+            return null;
+        var neighbors = currNode.neighbors();
+        for (var neighbor : neighbors) {
+            if (!ClosedSet.contains(neighbor.toString())) {
+                var ans = solveDFSLimited(neighbor, limit, ClosedSet);
+                if (ans != null)
+                    return ans;
             }
         }
-        if (isFinal(front))
-            while (front != null) {
-                answer.path.add(front);
-                front = front.Parent;
-            }
-        answer.OpenSetSize = OpenSet.size();
-        answer.ClosedSetSize = ClosedSet.size();
-        return answer;
+        ClosedSet.remove(this.InitialState.toString());
+        return null;
     }
 
     public SolutionWithStatistics solveIterativeDeepening() {
         var answer = new SolutionWithStatistics();
-        var tmp = new SolutionWithStatistics();
+        Node tmp = null;
         int limit = 1;
-        while (tmp.path.size() == 0) {
-            tmp = solveDFSLimited(limit);
+        // including recursive ones
+        callsToSolveDFSLimited = 0;
+        while (tmp == null) {
+            tmp = solveDFSLimited(this.InitialState, limit, new HashSet<String>());
             limit++;
-            answer.OpenSetSize = Math.max(tmp.OpenSetSize, answer.OpenSetSize);
-            answer.ClosedSetSize = Math.max(tmp.ClosedSetSize, answer.ClosedSetSize);
         }
-        answer.path = tmp.path;
+        answer.OpenSetSize = callsToSolveDFSLimited;
+        while (tmp != null) {
+            answer.path.add(tmp);
+            tmp = tmp.Parent;
+        }
         return answer;
     }
 
@@ -169,7 +162,8 @@ public class Solver {
 
     public static void main(String[] args) {
 
-        var start_state = new Node("BC|GAD|FE");
+        // var start_state = new Node("BC|AD");
+        var start_state = new Node("BC|ADE");
         start_state.decoratedPrint("start state:");
 
         var model = new Solver(start_state);
@@ -177,7 +171,7 @@ public class Solver {
         Instant before = Instant.now();
         var bfsAnswer = model.solveBFS();
         Instant after = Instant.now();
-        System.out.println("\nBFS \n steps : " + bfsAnswer.path.size());
+        System.out.println("\nBFS");
         System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
         System.out.println(
                 " rough memory estimate : \n    " + (bfsAnswer.ClosedSetSize + bfsAnswer.OpenSetSize)
@@ -187,7 +181,7 @@ public class Solver {
         before = Instant.now();
         var dfsAnswer = model.solveDFS();
         after = Instant.now();
-        System.out.println("\nDFS \n steps : " + dfsAnswer.path.size());
+        System.out.println("\nDFS");
         System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
         System.out.println(
                 " rough memory estimate : \n    " + (dfsAnswer.ClosedSetSize + dfsAnswer.OpenSetSize)
@@ -197,7 +191,7 @@ public class Solver {
         before = Instant.now();
         var iterDAnswer = model.solveIterativeDeepening();
         after = Instant.now();
-        System.out.println("\nIterative Deepening\n steps : " + iterDAnswer.path.size());
+        System.out.println("\nIterative Deepening");
         System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
         System.out.println(" rough memory estimate : \n    " + (iterDAnswer.ClosedSetSize + iterDAnswer.OpenSetSize)
                 + " nodes Allocated");
@@ -206,7 +200,7 @@ public class Solver {
         before = Instant.now();
         var UniformAnswer = model.solveUniform();
         after = Instant.now();
-        System.out.println("\nUniform Cost\n steps : " + UniformAnswer.path.size());
+        System.out.println("\nUniform Cost");
         System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
         System.out.println(" rough memory estimate : \n    " + (UniformAnswer.ClosedSetSize + UniformAnswer.OpenSetSize)
                 + " nodes Allocated");
