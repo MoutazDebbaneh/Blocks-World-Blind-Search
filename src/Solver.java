@@ -168,7 +168,11 @@ public class Solver {
     }
 
     public static void main(String[] args) {
-        var model = new Solver(new Node("BC|AD|FE"));
+
+        var start_state = new Node("BC|GAD|FE");
+        start_state.decoratedPrint("start state:");
+
+        var model = new Solver(start_state);
 
         Instant before = Instant.now();
         var bfsAnswer = model.solveBFS();
