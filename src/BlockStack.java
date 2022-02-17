@@ -5,39 +5,6 @@ public class BlockStack implements Comparable<BlockStack> {
     // internal data
     Stack<Character> _stack = new Stack<Character>();
 
-    static int RefEqualityHit = 0;
-    static int EqualityCall = 0;
-
-    static void showHitStat() {
-        System.out.println("RefEqualityHit / EqualityCall : ");
-        System.out.println((double) BlockStack.RefEqualityHit / EqualityCall);
-    }
-
-    private boolean equalStacks(BlockStack other) {
-        if (this._stack.size() != other._stack.size())
-            return false;
-        for (int i = 0; i < this._stack.size(); i++) {
-            if (!this._stack.get(i).equals(other._stack.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        EqualityCall++;
-        if (this == obj) {
-            BlockStack.RefEqualityHit++;
-            return true;
-        } else if (obj == null)
-            return false;
-        else if (obj instanceof BlockStack)
-            return this.equalStacks((BlockStack) obj);
-        else
-            return false;
-    }
-
     /**
      * construct a stack from string
      * <p>
@@ -58,13 +25,6 @@ public class BlockStack implements Comparable<BlockStack> {
 
     int size() {
         return this._stack.size();
-    }
-
-    static public BlockStack SpecialBlockStack(Character from, Character to) {
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        int start = alphabet.indexOf(Character.toUpperCase(from));
-        int end = alphabet.indexOf(Character.toUpperCase(to));
-        return new BlockStack(alphabet.substring(start, end + 1));
     }
 
     /**
@@ -98,6 +58,56 @@ public class BlockStack implements Comparable<BlockStack> {
         return new BlockStack(this.toString() + c);
     }
 
+    /**
+     * @return stack with the Character [from-to] like [A-Z] with from at the bottom
+     *         of the stack
+     */
+    static public BlockStack SpecialBlockStack(Character from, Character to) {
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int start = alphabet.indexOf(Character.toUpperCase(from));
+        int end = alphabet.indexOf(Character.toUpperCase(to));
+        return new BlockStack(alphabet.substring(start, end + 1));
+    }
+
+    /**
+     * 
+     * @param m
+     * @return a solved stack for the problem with size m (number of blocks is m)
+     */
+    static public BlockStack DesiredStack(int m) {
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        return new BlockStack(alphabet.substring(0, m));
+    }
+
+    /**
+     * loop over stacks to check for equality
+     * 
+     * @param other
+     * @return true if equal false if not
+     */
+    private boolean equalStacks(BlockStack other) {
+        if (this._stack.size() != other._stack.size())
+            return false;
+        for (int i = 0; i < this._stack.size(); i++) {
+            if (!this._stack.get(i).equals(other._stack.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        else if (obj == null)
+            return false;
+        else if (obj instanceof BlockStack)
+            return this.equalStacks((BlockStack) obj);
+        else
+            return false;
+    }
+
     @Override
     public String toString() {
         var sb = new StringBuilder();
@@ -117,33 +127,4 @@ public class BlockStack implements Comparable<BlockStack> {
                 ? this._stack.elementAt(0).compareTo(other._stack.elementAt(0))
                 : other.size() - this.size();
     }
-
-    // public static void main(String args[]) {
-    // var s = BlockStack.SpecialBlockStack('A', 'L');
-    // var ss = BlockStack.SpecialBlockStack('A', 'C');
-    // s.decoratedPrint();
-    // ss.decoratedPrint();
-    // ss = s.pop().pop().pop().pop().pop().pop().pop().pop().pop().pop().push('Z');
-    // s.decoratedPrint();
-    // ss.decoratedPrint();
-    // var a = new BlockStack("");
-    // var b = new BlockStack("");
-    // var b = new BlockStack("A");
-    // var a = new BlockStack("BC");
-    // var a = new BlockStack("EF");
-    // var b = new BlockStack("AB");
-    // var l = new ArrayList<BlockStack>();
-    // l.add(a);
-    // l.add(b);
-    // System.out.println("\nunsorted:");
-    // for (BlockStack blockStack : l) {
-    // blockStack.decoratedPrint();
-    // }
-    // Collections.sort(l);
-    // System.out.println("\nsorted:");
-    // for (BlockStack blockStack : l) {
-    // blockStack.decoratedPrint();
-    // }
-    // }
-
 }

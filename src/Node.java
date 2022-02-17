@@ -1,13 +1,165 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Node {
+public class Node implements Comparable<Node> {
 	ArrayList<BlockStack> stacks;
-	Node Parent;
-	int depth;
+	Node Parent = null;
+	int depth = 0;
+	/**
+	 * g is the g functions which is the total cost of travelling from the
+	 * root/start node to this node
+	 */
+	int g = 0;
+
+	Node() {
+	}
+
+	/**
+	 * constructs a Node form a string with the following format
+	 * content of stack "|" content of stack
+	 * <p>
+	 * for example:
+	 * <p>
+	 * ABC|EF|HG
+	 * corresponds to
+	 * <p>
+	 * C
+	 * <p>
+	 * B F G
+	 * <p>
+	 * A E H
+	 * <p>
+	 * ______
+	 * 
+	 * 
+	 */
+	Node(String input) {
+		List<String> state = Arrays.asList(input.split("\\|"));
+		Integer problemSize = state.stream().map((s) -> {
+			return s.length();
+		}).reduce((lft, rgt) -> {
+			return lft + rgt;
+		}).orElse(0);
+		this.stacks = new ArrayList<>();
+		for (String s : state) {
+			this.stacks.add(new BlockStack(s));
+		}
+		while (this.stacks.size() < problemSize) {
+			this.stacks.add(new BlockStack(""));
+		}
+		Collections.sort(this.stacks);
+	}
+
+	private int cost(int from, int to) {
+		var newHeight = this.stacks.get(to).size() + 1;
+		var oldHeight = this.stacks.get(from).size();
+		if (newHeight > oldHeight)
+			return newHeight - oldHeight;
+		else
+			return 2;
+	}
+
+	private Node move(int from, int to) {
+		var newNode = new Node();
+		// here is the game changer !!!
+		newNode.stacks = new ArrayList<>(stacks);
+		var c = newNode.stacks.get(from).top();
+		newNode.stacks.set(from, newNode.stacks.get(from).pop());
+		newNode.stacks.set(to, stacks.get(to).push(c));
+
+		Collections.sort(newNode.stacks);
+
+		newNode.g = this.g + cost(from, to);
+		newNode.depth = this.depth + 1;
+		newNode.Parent = this;
+		return newNode;
+	}
+
+	Set<Node> neighbors() {
+		Set<Node> result = new HashSet<Node>();
+		for (int i = 0; i < stacks.size(); ++i) {
+			var stack = stacks.get(i);
+			// in this case I can move from this stack
+			if (stack.size() > 1) {
+				// simply since stack are ordered the number of actions meaningful actions is
+				// equal to the number of actual columns + an empty column - the column you are
+				// taking a block from
+				boolean second_zero_size_stack = false;
+				for (int j = 0; j < stacks.size(); j++) {
+					// don't take a block and return it to it's place
+					if (j == i)
+						continue;
+					// if you already tried putting the block on the flour don't try it again
+					// remember sorted
+					if (second_zero_size_stack)
+						break;
+					if (stacks.get(j).size() == 0)
+						second_zero_size_stack = true;
+					// target new vertex
+					Node neighbor = this.move(i, j);
+					// TODO: is any of these two checks necessary?!?!?!?!?!?
+					if (!neighbor.equals(this) && !result.contains(neighbor)) {
+						// add neighbor to neighbors
+						result.add(neighbor);
+					}
+				}
+			} else if (stack.size() == 1) {
+				for (int j = 0; j < stacks.size(); j++) {
+					// don't take a block and return it to it's place
+					if (j == i)
+						continue;
+					// there is no point of moving block to the floor
+					// since it's already on the floor
+					if (stacks.get(j).size() == 0)
+						break;
+					// target new vertex
+					Node neighbor = this.move(i, j);
+
+					// TODO: is any of these two checks necessary?!?!?!?!?!?
+					if (!neighbor.equals(this) && !result.contains(neighbor)) {
+						// add neighbor to neighbors
+						result.add(neighbor);
+					}
+				}
+			} else {
+				// here since stack are probably sorted by size
+				// I can safely leave the loop
+				break;
+			}
+		}
+		return result;
+	}
+
+	void decoratedPrint(String title) {
+		System.out.println(title);
+		for (BlockStack blockStack : this.stacks) {
+			blockStack.decoratedPrint();
+		}
+	}
+
+	void detailedPrint(String title) {
+		System.out.println(title);
+		System.out.println("depth = " + this.depth);
+		System.out.println("g = " + this.g);
+		for (BlockStack blockStack : this.stacks) {
+			blockStack.decoratedPrint();
+		}
+	}
+
+	void printSolutionsStatistics(String title) {
+		System.out.println(title);
+		System.out.println("depth = " + this.depth);
+		System.out.println("g = " + this.g);
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		return this.g - o.g;
+	}
 
 	@Override
 	public boolean equals(Object other) {
@@ -29,130 +181,16 @@ public class Node {
 			return false;
 	}
 
-	private static <E> void swap(List<E> list, int i, int j) {
-		E e = list.get(i);
-		list.set(i, list.get(j));
-		list.set(j, e);
-	}
-
-	private Node move(int from, int to) {
-		var newNode = new Node();
-		// here is the game changer !!!
-		newNode.stacks = new ArrayList<>(stacks);
-		var c = newNode.stacks.get(from).top();
-		newNode.stacks.set(from, newNode.stacks.get(from).pop());
-		newNode.stacks.set(to, stacks.get(to).push(c));
-
-		Collections.sort(newNode.stacks);
-
-		newNode.depth = this.depth + 1;
-		newNode.Parent = this;
-		return newNode;
-	}
-
-	Set<Node> neighbors() {
-		Set<Node> result = new HashSet<Node>();
-		for (int i = 0; i < stacks.size(); ++i) {
-			var stack = stacks.get(i);
-			// in this case I can move from this stack
-			if (stack.size() > 0) {
-				boolean second_zero_size_stack = false;
-				for (int j = 0; j < stacks.size(); j++) {
-					if (j == i)
-						continue;
-					if (second_zero_size_stack)
-						break;
-					if (stacks.get(j).size() == 0)
-						second_zero_size_stack = true;
-					// target new vertex
-					Node neighbor = this.move(i, j);
-					// result.contains(neighbor) could be unnecessary
-					if (!neighbor.equals(this)) {
-						// add neighbor to neighbors
-						result.add(neighbor);
-					}
-				}
-			} else {
-				// here since stack are probably sorted by size
-				// I can safely leave the loop
-				break;
+	@Override
+	public String toString() {
+		var sb = new StringBuilder();
+		for (int i = 0; i < stacks.size(); i++) {
+			for (char c : stacks.get(i)._stack) {
+				sb.append(c);
 			}
+			if (i < stacks.size() - 1)
+				sb.append("|");
 		}
-		return result;
+		return sb.toString();
 	}
-
-	void decoratedPrint(String title) {
-		System.out.println(title);
-		for (BlockStack blockStack : this.stacks) {
-			blockStack.decoratedPrint();
-		}
-	}
-
-	public Node(ArrayList<String> state) {
-		Integer problemSize = state.stream().map((s) -> {
-			return s.length();
-		}).reduce((lft, rgt) -> {
-			return lft + rgt;
-		}).orElse(0);
-		this.stacks = new ArrayList<>();
-		for (String s : state) {
-			this.stacks.add(new BlockStack(s));
-		}
-		while (this.stacks.size() < problemSize) {
-			this.stacks.add(new BlockStack(""));
-		}
-		assert (this.stacks.size() == problemSize);
-
-	}
-
-	public Node() {
-	}
-
-	public static void main(String args[]) {
-		var arr = new ArrayList<String>();
-		arr.add("BC");
-		arr.add("AD");
-		arr.add("EF");
-		var initialState = new Node(arr);
-		initialState.decoratedPrint("initial node");
-		int cnt = 0;
-
-		// Stack<Node> OpenSet = new Stack<Node>();
-		Set<Node> ClosedSet = new HashSet<Node>();
-
-		for (var neighbor : initialState.neighbors()) {
-			if (!ClosedSet.contains(neighbor)) {
-				cnt++;
-				for (Node neighbor2 : neighbor.neighbors()) {
-					if (!ClosedSet.contains(neighbor2)) {
-						cnt++;
-						for (Node neighbor3 : neighbor2.neighbors()) {
-							if (!ClosedSet.contains(neighbor3)) {
-								cnt++;
-								for (Node neighbor4 : neighbor3.neighbors()) {
-									if (!ClosedSet.contains(neighbor4)) {
-										cnt++;
-										for (Node neighbor5 : neighbor4.neighbors()) {
-											cnt++;
-											ClosedSet.add(neighbor5);
-										}
-									}
-									ClosedSet.add(neighbor4);
-								}
-							}
-							ClosedSet.add(neighbor3);
-						}
-					}
-					ClosedSet.add(neighbor2);
-				}
-			}
-			ClosedSet.add(neighbor);
-		}
-		System.out.print("states discover : ");
-		System.out.println(cnt);
-		BlockStack.showHitStat();
-		// this example shows 0.4 hit rate
-		// which is a decent optimization
-	}
-
 }
