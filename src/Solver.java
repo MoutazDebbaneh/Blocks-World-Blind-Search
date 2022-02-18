@@ -9,6 +9,8 @@ import java.time.*;
 public class Solver {
     Node InitialState;
     static BlockStack orderedStack;
+    int depth;
+    int g;
 
     Solver(Node node) {
         this.InitialState = node;
@@ -52,6 +54,10 @@ public class Solver {
                 }
             }
         }
+        if (front != null) {
+            this.depth = front.depth;
+            this.g = front.g;
+        }
         while (front != null) {
             answer.path.add(front);
             front = front.Parent;
@@ -93,6 +99,10 @@ public class Solver {
             limit++;
         }
         answer.OpenSetSize = callsToSolveDFSLimited;
+        if (tmp != null) {
+            this.depth = tmp.depth;
+            this.g = tmp.g;
+        }
         while (tmp != null) {
             answer.path.add(tmp);
             tmp = tmp.Parent;
@@ -106,20 +116,25 @@ public class Solver {
         Queue<Node> OpenSet = new LinkedList<Node>();
         HashSet<String> ClosedSet = new HashSet<String>();
         OpenSet.add(this.InitialState);
-        ClosedSet.add(this.InitialState.toString());
+        // ClosedSet.add(this.InitialState.toString());
         Node front = InitialState;
         while (!OpenSet.isEmpty()) {
             front = OpenSet.peek();
+            ClosedSet.add(front.toString()); // Testing another way
             if (isFinal(front))
                 break;
             var neighbors = front.neighbors();
             for (var neighbor : neighbors) {
                 if (!ClosedSet.contains(neighbor.toString())) {
                     OpenSet.add(neighbor);
-                    ClosedSet.add(neighbor.toString());
+                    // ClosedSet.add(neighbor.toString());
                 }
             }
             OpenSet.remove();
+        }
+        if (front != null) {
+            this.depth = front.depth;
+            this.g = front.g;
         }
         while (front != null) {
             answer.path.add(front);
@@ -151,6 +166,10 @@ public class Solver {
             }
             OpenSet.remove();
         }
+        if (front != null) {
+            this.depth = front.depth;
+            this.g = front.g;
+        }
         while (front != null) {
             answer.path.add(front);
             front = front.Parent;
@@ -162,11 +181,19 @@ public class Solver {
 
     public static void main(String[] args) {
 
+        BlockStack bs = BlockStack.DesiredStack(5);
+        System.out.println(bs.toString());
+        System.out.println(bs.top());
+        System.out.println(bs.pop());
+
         // var start_state = new Node("BC|AD");
-        var start_state = new Node("BC|ADE");
+        // var start_state = new Node("BC|ADE");
+        var start_state = new Node("BA|C");
         start_state.decoratedPrint("start state:");
 
         var model = new Solver(start_state);
+
+        orderedStack.decoratedPrint();
 
         Instant before = Instant.now();
         var bfsAnswer = model.solveBFS();
@@ -176,6 +203,7 @@ public class Solver {
         System.out.println(
                 " rough memory estimate : \n    " + (bfsAnswer.ClosedSetSize + bfsAnswer.OpenSetSize)
                         + " nodes Allocated");
+        System.out.println("Nodes Created: " + String.valueOf(Node.nOfNodes));
         bfsAnswer.path.get(0).printSolutionsStatistics("Answer");
 
         before = Instant.now();

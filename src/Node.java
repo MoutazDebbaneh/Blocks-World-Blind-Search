@@ -9,6 +9,7 @@ public class Node implements Comparable<Node> {
 	ArrayList<BlockStack> stacks;
 	Node Parent = null;
 	int depth = 0;
+	static int nOfNodes = 0;
 	/**
 	 * g is the g functions which is the total cost of travelling from the
 	 * root/start node to this node
@@ -16,6 +17,7 @@ public class Node implements Comparable<Node> {
 	int g = 0;
 
 	Node() {
+		Node.nOfNodes += 1;
 	}
 
 	/**
@@ -38,6 +40,7 @@ public class Node implements Comparable<Node> {
 	 * 
 	 */
 	Node(String input) {
+		Node.nOfNodes += 1;
 		List<String> state = Arrays.asList(input.split("\\|"));
 		Integer problemSize = state.stream().map((s) -> {
 			return s.length();
@@ -52,6 +55,7 @@ public class Node implements Comparable<Node> {
 			this.stacks.add(new BlockStack(""));
 		}
 		Collections.sort(this.stacks);
+
 	}
 
 	private int cost(int from, int to) {
@@ -101,11 +105,8 @@ public class Node implements Comparable<Node> {
 						second_zero_size_stack = true;
 					// target new vertex
 					Node neighbor = this.move(i, j);
-					// TODO: is any of these two checks necessary?!?!?!?!?!?
-					if (!neighbor.equals(this) && !result.contains(neighbor)) {
-						// add neighbor to neighbors
-						result.add(neighbor);
-					}
+					result.add(neighbor);
+
 				}
 			} else if (stack.size() == 1) {
 				for (int j = 0; j < stacks.size(); j++) {
@@ -118,12 +119,8 @@ public class Node implements Comparable<Node> {
 						break;
 					// target new vertex
 					Node neighbor = this.move(i, j);
+					result.add(neighbor);
 
-					// TODO: is any of these two checks necessary?!?!?!?!?!?
-					if (!neighbor.equals(this) && !result.contains(neighbor)) {
-						// add neighbor to neighbors
-						result.add(neighbor);
-					}
 				}
 			} else {
 				// here since stack are probably sorted by size

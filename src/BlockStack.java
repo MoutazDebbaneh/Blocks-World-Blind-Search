@@ -39,7 +39,7 @@ public class BlockStack implements Comparable<BlockStack> {
 
     /**
      * 
-     * @return new deferent stack without the last element
+     * @return new different stack without the last element
      * @throws EmptyStackException
      */
     BlockStack pop() throws EmptyStackException {
@@ -52,7 +52,7 @@ public class BlockStack implements Comparable<BlockStack> {
     /**
      * 
      * @param c
-     * @return new deferent stack with the Character c
+     * @return new different stack with the Character c
      */
     BlockStack push(Character c) {
         return new BlockStack(this.toString() + c);
