@@ -118,7 +118,7 @@ public class Solver {
         var answer = new SolutionWithStatistics();
         SolutionWithStatistics tmp = null;
         int limit = 1;
-        while (tmp != null && tmp.path.size() > 0) {
+        while (tmp == null || tmp.path.size() == 0) {
             tmp = solveDFSLimited(limit);
             answer.ClosedSetSize = Math.max(answer.ClosedSetSize, tmp.ClosedSetSize);
             answer.OpenSetSize = Math.max(answer.OpenSetSize, tmp.OpenSetSize);
@@ -129,6 +129,7 @@ public class Solver {
             this.depth = tmp.path.get(0).depth;
             this.g = tmp.path.get(0).g;
         }
+        answer.path = tmp.path;
         return answer;
     }
 
@@ -205,19 +206,22 @@ public class Solver {
 
     public static void main(String[] args) {
 
-        BlockStack bs = BlockStack.DesiredStack(5);
-        System.out.println(bs.toString());
-        System.out.println(bs.top());
-        System.out.println(bs.pop());
+        // BlockStack bs = BlockStack.DesiredStack(5);
+        // System.out.println(bs.toString());
+        // System.out.println(bs.top());
+        // System.out.println(bs.pop());
 
         // var start_state = new Node("BC|AD");
-        // var start_state = new Node("BC|ADE");
-        var start_state = new Node("BA|C");
+        var start_state = new Node("BC|ADE");
+
+        // var start_state = new Node("BA|C");
         start_state.decoratedPrint("start state:");
+
+        // System.out.println(start_state.decoratedString("title"));
 
         var model = new Solver(start_state);
 
-        orderedStack.decoratedPrint();
+        // orderedStack.decoratedPrint();
 
         Instant before = Instant.now();
         var bfsAnswer = model.solveBFS();
@@ -239,6 +243,15 @@ public class Solver {
                 " rough memory estimate : \n    " + (dfsAnswer.ClosedSetSize + dfsAnswer.OpenSetSize)
                         + " nodes Allocated");
         dfsAnswer.path.get(0).printSolutionsStatistics("Answer");
+
+        before = Instant.now();
+        var limitedAnswer = model.solveDFSLimited(20);
+        after = Instant.now();
+        System.out.println("\nLimited : ");
+        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
+        System.out.println(" rough memory estimate : \n    " + (limitedAnswer.ClosedSetSize + limitedAnswer.OpenSetSize)
+                + " nodes Allocated");
+        limitedAnswer.path.get(0).printSolutionsStatistics("Answer");
 
         before = Instant.now();
         var iterDAnswer = model.solveIterativeDeepening();
