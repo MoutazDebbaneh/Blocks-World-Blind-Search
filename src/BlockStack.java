@@ -5,6 +5,10 @@ public class BlockStack implements Comparable<BlockStack> {
     // internal data
     Stack<Character> _stack = new Stack<Character>();
 
+    Character get(int index) {
+        return _stack.get(index);
+    }
+
     /**
      * construct a stack from string
      * <p>
@@ -119,6 +123,10 @@ public class BlockStack implements Comparable<BlockStack> {
 
     public void decoratedPrint() {
         System.out.println("|" + this.toString() + "<-");
+    }
+
+    public String decoratedString() {
+        return "|" + this.toString() + "<-\n";
     }
 
     @Override

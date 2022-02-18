@@ -117,25 +117,27 @@ public class MainFrame extends javax.swing.JFrame {
 
 		Instant before = Instant.now();
 
+		// rest count
+		Node.nOfNodes = 0;
 		Solver.SolutionWithStatistics algoAnswer = switch (algo) {
 			case 0 -> model.solveBFS();
 			case 1 -> model.solveDFS();
 			case 2 -> model.solveUniform();
-			// TODO: Fix here
-			// case 3 -> model.solveDFSLimited(start_state, 20, new HashSet<String>());
+			case 3 -> model.solveDFSLimited(20);
 			default -> model.solveIterativeDeepening();
 		};
-
 		Instant after = Instant.now();
-
-		String result = "Search Complete:\n";
-		result += "Depth = " + String.valueOf(model.depth);
-		result += "\ng = " + String.valueOf(model.g) + "\n";
-		result += " time : " + Duration.between(before, after).toMillis() + " ms";
-		result += "\n Rough memory estimate: \n    " + (algoAnswer.ClosedSetSize + algoAnswer.OpenSetSize)
-				+ " nodes Allocated";
-		result += "\nNodes Created: " + String.valueOf(Node.nOfNodes);
-		algoAnswer.path.get(0).printSolutionsStatistics("Answer");
+		var result = new StringBuilder();
+		result.append(start_state.decoratedString("Start State"));
+		result.append("Search Complete:\n");
+		result.append("Depth = " + String.valueOf(model.depth));
+		result.append("\ng = " + String.valueOf(model.g) + "\n");
+		result.append(" Processed Nodes ~ " + algoAnswer.processedNodes + "\n");
+		result.append(" Time : " + Duration.between(before, after).toMillis() + " ms");
+		result.append("\n Rough estimate memory required: \n    " + (algoAnswer.ClosedSetSize + algoAnswer.OpenSetSize)
+				+ " node size");
+		result.append("\n Nodes Created: " + String.valueOf(Node.nOfNodes));
+		// algoAnswer.path.get(0).printSolutionsStatistics("Answer");
 
 		JOptionPane.showMessageDialog(this, result);
 

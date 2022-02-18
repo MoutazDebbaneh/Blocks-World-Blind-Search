@@ -28,6 +28,9 @@ public class Solver {
         ArrayList<Node> path = new ArrayList<Node>();
         int OpenSetSize = 0;
         int ClosedSetSize = 0;
+        int volatileOpenSetSize = 0;
+        // time complexity
+        int processedNodes = 0;
     }
 
     boolean isFinal(Node State) {
@@ -44,6 +47,7 @@ public class Solver {
         Node front = InitialState;
         while (!OpenSet.empty()) {
             front = OpenSet.pop();
+            answer.processedNodes++;
             if (isFinal(front))
                 break;
             var neighbors = front.neighbors();
@@ -67,19 +71,26 @@ public class Solver {
         return answer;
     }
 
-    static int callsToSolveDFSLimited = 0;
-
-    public Node solveDFSLimited(Node currNode, int limit, HashSet<String> ClosedSet) {
-        callsToSolveDFSLimited++;
+    private Node solveDFSLimitedRecursive(Node currNode, int limit, HashSet<String> ClosedSet,
+            SolutionWithStatistics answer) {
         ClosedSet.add(this.InitialState.toString());
+        answer.ClosedSetSize = Math.max(answer.ClosedSetSize, ClosedSet.size());
+        answer.processedNodes++;
         if (isFinal(currNode))
             return currNode;
         if (currNode.depth >= limit)
             return null;
         var neighbors = currNode.neighbors();
+        // simulate adding neighbors to OpenSet
+        answer.volatileOpenSetSize += neighbors.size();
+        answer.OpenSetSize = Math.max(answer.OpenSetSize, answer.volatileOpenSetSize);
         for (var neighbor : neighbors) {
             if (!ClosedSet.contains(neighbor.toString())) {
-                var ans = solveDFSLimited(neighbor, limit, ClosedSet);
+                // simulate removing it from the OpenSet
+                answer.volatileOpenSetSize--;
+                answer.OpenSetSize = Math.max(answer.OpenSetSize, answer.volatileOpenSetSize);
+
+                var ans = solveDFSLimitedRecursive(neighbor, limit, ClosedSet, answer);
                 if (ans != null)
                     return ans;
             }
@@ -88,24 +99,35 @@ public class Solver {
         return null;
     }
 
-    public SolutionWithStatistics solveIterativeDeepening() {
+    public SolutionWithStatistics solveDFSLimited(int limit) {
         var answer = new SolutionWithStatistics();
-        Node tmp = null;
-        int limit = 1;
-        // including recursive ones
-        callsToSolveDFSLimited = 0;
-        while (tmp == null) {
-            tmp = solveDFSLimited(this.InitialState, limit, new HashSet<String>());
-            limit++;
-        }
-        answer.OpenSetSize = callsToSolveDFSLimited;
-        if (tmp != null) {
-            this.depth = tmp.depth;
-            this.g = tmp.g;
-        }
+        Node solutionNode = solveDFSLimitedRecursive(this.InitialState, limit, new HashSet<String>(), answer);
+        if (solutionNode != null)
+            this.depth = solutionNode.depth;
+        if (solutionNode != null)
+            this.g = solutionNode.g;
+        var tmp = solutionNode;
         while (tmp != null) {
             answer.path.add(tmp);
             tmp = tmp.Parent;
+        }
+        return answer;
+    }
+
+    public SolutionWithStatistics solveIterativeDeepening() {
+        var answer = new SolutionWithStatistics();
+        SolutionWithStatistics tmp = null;
+        int limit = 1;
+        while (tmp != null && tmp.path.size() > 0) {
+            tmp = solveDFSLimited(limit);
+            answer.ClosedSetSize = Math.max(answer.ClosedSetSize, tmp.ClosedSetSize);
+            answer.OpenSetSize = Math.max(answer.OpenSetSize, tmp.OpenSetSize);
+            answer.processedNodes = Math.max(answer.processedNodes, tmp.processedNodes);
+            limit++;
+        }
+        if (tmp != null) {
+            this.depth = tmp.path.get(0).depth;
+            this.g = tmp.path.get(0).g;
         }
         return answer;
     }
@@ -121,6 +143,7 @@ public class Solver {
         while (!OpenSet.isEmpty()) {
             front = OpenSet.peek();
             ClosedSet.add(front.toString()); // Testing another way
+            answer.processedNodes++;
             if (isFinal(front))
                 break;
             var neighbors = front.neighbors();
@@ -155,6 +178,7 @@ public class Solver {
         Node front = InitialState;
         while (!OpenSet.isEmpty()) {
             front = OpenSet.peek();
+            answer.processedNodes++;
             if (isFinal(front))
                 break;
             var neighbors = front.neighbors();

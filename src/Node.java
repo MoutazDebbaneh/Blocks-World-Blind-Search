@@ -83,8 +83,8 @@ public class Node implements Comparable<Node> {
 		return newNode;
 	}
 
-	Set<Node> neighbors() {
-		Set<Node> result = new HashSet<Node>();
+	ArrayList<Node> neighbors() {
+		ArrayList<Node> result = new ArrayList<Node>();
 		for (int i = 0; i < stacks.size(); ++i) {
 			var stack = stacks.get(i);
 			// in this case I can move from this stack
@@ -137,6 +137,34 @@ public class Node implements Comparable<Node> {
 			if (blockStack.size() > 0)
 				blockStack.decoratedPrint();
 		}
+	}
+
+	String decoratedString(String title) {
+		var sb = new StringBuilder();
+		sb.append(title + "\n");
+		var max_block_size = this.stacks.stream().reduce(0, (acc, elem) -> {
+			return Math.max(acc, elem.size());
+		}, (a, b) -> {
+			return a + b;
+		});
+		var cpy = this.stacks;
+
+		for (int i = max_block_size - 1; i >= 0; i--) {
+			for (int j = 0; j < cpy.size(); j++) {
+				if (i < cpy.get(j).size())
+					sb.append(cpy.get(j).get(i));
+				else
+					sb.append(' ');
+				sb.append("  ");
+			}
+			sb.append('\n');
+		}
+		for (int j = 0; j < cpy.size() - 1; j++) {
+			sb.append("---");
+		}
+		sb.append("-\n");
+
+		return sb.toString();
 	}
 
 	void detailedPrint(String title) {
