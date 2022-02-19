@@ -14,6 +14,7 @@ public class MainFrame extends javax.swing.JFrame {
 	public MainFrame() {
 		this.setTitle("Blocks World (Cubes World) Solver!");
 		initComponents();
+		this.setLocationRelativeTo(null);
 	}
 
 	private void initComponents() {
