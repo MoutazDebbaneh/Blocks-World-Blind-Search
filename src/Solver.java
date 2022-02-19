@@ -8,6 +8,7 @@ import java.time.*;
 
 public class Solver {
     Node InitialState;
+    final Node finalState = new Node(""); // Change if you want a custom final state
     static BlockStack orderedStack;
     int depth;
     int g;
@@ -35,7 +36,10 @@ public class Solver {
     }
 
     boolean isFinal(Node State) {
-        return State.stacks.get(0).size() == State.stacks.size() && State.stacks.get(0).equals(orderedStack);
+        if (finalState.toString().length() == 0)
+            return State.stacks.get(0).size() == State.stacks.size() && State.stacks.get(0).equals(orderedStack);
+        else
+            return State.equals(finalState);
     }
 
     public SolutionWithStatistics solveDFS() {
