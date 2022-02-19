@@ -31,6 +31,7 @@ public class Solver {
         int volatileOpenSetSize = 0;
         // time complexity
         int processedNodes = 0;
+        boolean isFound = false;
     }
 
     boolean isFinal(Node State) {
@@ -48,8 +49,10 @@ public class Solver {
         while (!OpenSet.empty()) {
             front = OpenSet.pop();
             answer.processedNodes++;
-            if (isFinal(front))
+            if (isFinal(front)) {
+                answer.isFound = true;
                 break;
+            }
             var neighbors = front.neighbors();
             for (var neighbor : neighbors) {
                 if (!ClosedSet.contains(neighbor.toString())) {
@@ -76,8 +79,10 @@ public class Solver {
         ClosedSet.add(this.InitialState.toString());
         answer.ClosedSetSize = Math.max(answer.ClosedSetSize, ClosedSet.size());
         answer.processedNodes++;
-        if (isFinal(currNode))
+        if (isFinal(currNode)) {
+            answer.isFound = true;
             return currNode;
+        }
         if (currNode.depth >= limit)
             return null;
         var neighbors = currNode.neighbors();
@@ -145,8 +150,10 @@ public class Solver {
             front = OpenSet.peek();
             ClosedSet.add(front.toString()); // Testing another way
             answer.processedNodes++;
-            if (isFinal(front))
+            if (isFinal(front)) {
+                answer.isFound = true;
                 break;
+            }
             var neighbors = front.neighbors();
             for (var neighbor : neighbors) {
                 if (!ClosedSet.contains(neighbor.toString())) {
@@ -180,8 +187,10 @@ public class Solver {
         while (!OpenSet.isEmpty()) {
             front = OpenSet.peek();
             answer.processedNodes++;
-            if (isFinal(front))
+            if (isFinal(front)) {
+                answer.isFound = true;
                 break;
+            }
             var neighbors = front.neighbors();
             for (var neighbor : neighbors) {
                 if (!ClosedSet.contains(neighbor.toString())) {
@@ -206,22 +215,11 @@ public class Solver {
 
     public static void main(String[] args) {
 
-        // BlockStack bs = BlockStack.DesiredStack(5);
-        // System.out.println(bs.toString());
-        // System.out.println(bs.top());
-        // System.out.println(bs.pop());
-
-        // var start_state = new Node("BC|AD");
         var start_state = new Node("BC|ADE");
 
-        // var start_state = new Node("BA|C");
         start_state.decoratedPrint("start state:");
 
-        // System.out.println(start_state.decoratedString("title"));
-
         var model = new Solver(start_state);
-
-        // orderedStack.decoratedPrint();
 
         Instant before = Instant.now();
         var bfsAnswer = model.solveBFS();

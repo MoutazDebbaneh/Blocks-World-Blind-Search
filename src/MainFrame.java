@@ -142,9 +142,13 @@ public class MainFrame extends javax.swing.JFrame {
 		Instant after = Instant.now();
 		var result = new StringBuilder();
 		result.append(start_state.decoratedString("Start State"));
-		result.append("Search Complete:\n");
-		result.append("Depth = " + String.valueOf(model.depth));
-		result.append("\ng = " + String.valueOf(model.g) + "\n");
+		if (algoAnswer.isFound) {
+			result.append("Search Complete:\n");
+			result.append("Depth = " + String.valueOf(model.depth));
+			result.append("\ng = " + String.valueOf(model.g) + "\n");
+		} else {
+			result.append("Solution was not found.\n");
+		}
 		result.append(" Processed Nodes ~ " + algoAnswer.processedNodes + "\n");
 		result.append(" Time : " + Duration.between(before, after).toMillis() + " ms");
 		result.append("\n Rough estimate memory required: \n    " + (algoAnswer.ClosedSetSize + algoAnswer.OpenSetSize)
