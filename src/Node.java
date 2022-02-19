@@ -1,14 +1,13 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Node implements Comparable<Node> {
 	ArrayList<BlockStack> stacks;
 	Node Parent = null;
 	int depth = 0;
+	static int nOfNodes = 0;
 	/**
 	 * g is the g functions which is the total cost of travelling from the
 	 * root/start node to this node
@@ -16,6 +15,7 @@ public class Node implements Comparable<Node> {
 	int g = 0;
 
 	Node() {
+		Node.nOfNodes += 1;
 	}
 
 	/**
@@ -38,6 +38,7 @@ public class Node implements Comparable<Node> {
 	 * 
 	 */
 	Node(String input) {
+		Node.nOfNodes += 1;
 		List<String> state = Arrays.asList(input.split("\\|"));
 		Integer problemSize = state.stream().map((s) -> {
 			return s.length();
@@ -52,6 +53,7 @@ public class Node implements Comparable<Node> {
 			this.stacks.add(new BlockStack(""));
 		}
 		Collections.sort(this.stacks);
+
 	}
 
 	private int cost(int from, int to) {
@@ -79,8 +81,8 @@ public class Node implements Comparable<Node> {
 		return newNode;
 	}
 
-	Set<Node> neighbors() {
-		Set<Node> result = new HashSet<Node>();
+	ArrayList<Node> neighbors() {
+		ArrayList<Node> result = new ArrayList<Node>();
 		for (int i = 0; i < stacks.size(); ++i) {
 			var stack = stacks.get(i);
 			// in this case I can move from this stack
@@ -101,11 +103,8 @@ public class Node implements Comparable<Node> {
 						second_zero_size_stack = true;
 					// target new vertex
 					Node neighbor = this.move(i, j);
-					// TODO: is any of these two checks necessary?!?!?!?!?!?
-					if (!neighbor.equals(this) && !result.contains(neighbor)) {
-						// add neighbor to neighbors
-						result.add(neighbor);
-					}
+					result.add(neighbor);
+
 				}
 			} else if (stack.size() == 1) {
 				for (int j = 0; j < stacks.size(); j++) {
@@ -118,12 +117,8 @@ public class Node implements Comparable<Node> {
 						break;
 					// target new vertex
 					Node neighbor = this.move(i, j);
+					result.add(neighbor);
 
-					// TODO: is any of these two checks necessary?!?!?!?!?!?
-					if (!neighbor.equals(this) && !result.contains(neighbor)) {
-						// add neighbor to neighbors
-						result.add(neighbor);
-					}
 				}
 			} else {
 				// here since stack are probably sorted by size
@@ -140,6 +135,34 @@ public class Node implements Comparable<Node> {
 			if (blockStack.size() > 0)
 				blockStack.decoratedPrint();
 		}
+	}
+
+	String decoratedString(String title) {
+		var sb = new StringBuilder();
+		sb.append(title + "\n");
+		var max_block_size = this.stacks.stream().reduce(0, (acc, elem) -> {
+			return Math.max(acc, elem.size());
+		}, (a, b) -> {
+			return a + b;
+		});
+		var cpy = this.stacks;
+
+		for (int i = max_block_size - 1; i >= 0; i--) {
+			for (int j = 0; j < cpy.size(); j++) {
+				if (i < cpy.get(j).size())
+					sb.append(cpy.get(j).get(i));
+				else
+					sb.append(' ');
+				sb.append("  ");
+			}
+			sb.append('\n');
+		}
+		for (int j = 0; j < cpy.size() - 1; j++) {
+			sb.append("---");
+		}
+		sb.append("-\n");
+
+		return sb.toString();
 	}
 
 	void detailedPrint(String title) {
