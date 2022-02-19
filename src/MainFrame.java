@@ -110,6 +110,20 @@ public class MainFrame extends javax.swing.JFrame {
 
 		String startingString = this.startPosText.getText();
 		int algo = this.jComboBox1.getSelectedIndex();
+		int limit = -1;
+
+		if (algo == 3) {
+			try {
+				limit = Integer.valueOf(JOptionPane.showInputDialog("Please enter the preferred maximum depth:"));
+				if (limit <= 0)
+					throw new Exception();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Please enter a positive natural number.", "Invalid input",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+		}
 
 		var start_state = new Node(startingString);
 		var model = new Solver(start_state);
@@ -122,7 +136,7 @@ public class MainFrame extends javax.swing.JFrame {
 			case 0 -> model.solveBFS();
 			case 1 -> model.solveDFS();
 			case 2 -> model.solveUniform();
-			case 3 -> model.solveDFSLimited(20);
+			case 3 -> model.solveDFSLimited(limit);
 			default -> model.solveIterativeDeepening();
 		};
 		Instant after = Instant.now();
