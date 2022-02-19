@@ -20,7 +20,7 @@ public class MainFrame extends javax.swing.JFrame {
 
 		welcomeLabel = new javax.swing.JLabel();
 		algoLabel = new javax.swing.JLabel();
-		jComboBox1 = new javax.swing.JComboBox<>();
+		algoComboBox = new javax.swing.JComboBox<>();
 		startBtn = new javax.swing.JButton();
 		startingPosLabel = new javax.swing.JLabel();
 		startPosText = new javax.swing.JTextField();
@@ -34,7 +34,7 @@ public class MainFrame extends javax.swing.JFrame {
 
 		algoLabel.setText("Preferred algorithm:");
 
-		jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(
+		algoComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(
 				new String[] { "Breadth-First Search (BFS)", "Depth-First Search (DFS)", "Uniform Cost Search",
 						"Depth Limited Search", "Iterative Deepening Search" }));
 
@@ -71,7 +71,7 @@ public class MainFrame extends javax.swing.JFrame {
 																		javax.swing.GroupLayout.PREFERRED_SIZE))
 														.addGroup(layout.createSequentialGroup()
 																.addGap(18, 18, 18)
-																.addComponent(jComboBox1, 0,
+																.addComponent(algoComboBox, 0,
 																		javax.swing.GroupLayout.DEFAULT_SIZE,
 																		Short.MAX_VALUE))))
 										.addGroup(layout.createSequentialGroup()
@@ -89,7 +89,7 @@ public class MainFrame extends javax.swing.JFrame {
 								.addGap(18, 18, 18)
 								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
 										.addComponent(algoLabel)
-										.addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE,
+										.addComponent(algoComboBox, javax.swing.GroupLayout.PREFERRED_SIZE,
 												javax.swing.GroupLayout.DEFAULT_SIZE,
 												javax.swing.GroupLayout.PREFERRED_SIZE))
 								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -109,7 +109,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {
 
 		String startingString = this.startPosText.getText();
-		int algo = this.jComboBox1.getSelectedIndex();
+		int algo = this.algoComboBox.getSelectedIndex();
 		int limit = -1;
 
 		if (algo == 3) {
@@ -186,7 +186,7 @@ public class MainFrame extends javax.swing.JFrame {
 	}
 
 	private javax.swing.JButton startBtn;
-	private javax.swing.JComboBox<String> jComboBox1;
+	private javax.swing.JComboBox<String> algoComboBox;
 	private javax.swing.JLabel algoLabel;
 	private javax.swing.JLabel startingPosLabel;
 	private javax.swing.JTextField startPosText;
