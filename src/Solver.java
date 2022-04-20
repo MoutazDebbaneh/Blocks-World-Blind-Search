@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
-import java.time.*;
 
 public class Solver {
     Node InitialState;
@@ -127,7 +126,7 @@ public class Solver {
         var answer = new SolutionWithStatistics();
         SolutionWithStatistics tmp = null;
         int limit = 1;
-        while (tmp == null || tmp.path.size() == 0) {
+        while (tmp == null || tmp.isFound == false) {
             tmp = solveDFSLimited(limit);
             answer.ClosedSetSize = Math.max(answer.ClosedSetSize, tmp.ClosedSetSize);
             answer.OpenSetSize = Math.max(answer.OpenSetSize, tmp.OpenSetSize);
@@ -135,11 +134,12 @@ public class Solver {
             limit++;
         }
         if (tmp != null) {
+            tmp.isFound = true;
             this.depth = tmp.path.get(0).depth;
             this.g = tmp.path.get(0).g;
         }
-        answer.path = tmp.path;
-        return answer;
+
+        return tmp;
     }
 
     public SolutionWithStatistics solveBFS() {
@@ -215,64 +215,5 @@ public class Solver {
         answer.OpenSetSize = OpenSet.size();
         answer.ClosedSetSize = ClosedSet.size();
         return answer;
-    }
-
-    public static void main(String[] args) {
-
-        var start_state = new Node("BC|ADE");
-
-        start_state.decoratedPrint("start state:");
-
-        var model = new Solver(start_state);
-
-        Instant before = Instant.now();
-        var bfsAnswer = model.solveBFS();
-        Instant after = Instant.now();
-        System.out.println("\nBFS");
-        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
-        System.out.println(
-                " rough memory estimate : \n    " + (bfsAnswer.ClosedSetSize + bfsAnswer.OpenSetSize)
-                        + " nodes Allocated");
-        System.out.println("Nodes Created: " + String.valueOf(Node.nOfNodes));
-        bfsAnswer.path.get(0).printSolutionsStatistics("Answer");
-
-        before = Instant.now();
-        var dfsAnswer = model.solveDFS();
-        after = Instant.now();
-        System.out.println("\nDFS");
-        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
-        System.out.println(
-                " rough memory estimate : \n    " + (dfsAnswer.ClosedSetSize + dfsAnswer.OpenSetSize)
-                        + " nodes Allocated");
-        dfsAnswer.path.get(0).printSolutionsStatistics("Answer");
-
-        before = Instant.now();
-        var limitedAnswer = model.solveDFSLimited(20);
-        after = Instant.now();
-        System.out.println("\nLimited : ");
-        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
-        System.out.println(" rough memory estimate : \n    " + (limitedAnswer.ClosedSetSize + limitedAnswer.OpenSetSize)
-                + " nodes Allocated");
-        limitedAnswer.path.get(0).printSolutionsStatistics("Answer");
-
-        before = Instant.now();
-        var iterDAnswer = model.solveIterativeDeepening();
-        after = Instant.now();
-        System.out.println("\nIterative Deepening");
-        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
-        System.out.println(" rough memory estimate : \n    " + (iterDAnswer.ClosedSetSize + iterDAnswer.OpenSetSize)
-                + " nodes Allocated");
-        iterDAnswer.path.get(0).printSolutionsStatistics("Answer");
-
-        before = Instant.now();
-        var UniformAnswer = model.solveUniform();
-        after = Instant.now();
-        System.out.println("\nUniform Cost");
-        System.out.println(" time : " + Duration.between(before, after).toMillis() + " ms");
-        System.out.println(" rough memory estimate : \n    " + (UniformAnswer.ClosedSetSize + UniformAnswer.OpenSetSize)
-                + " nodes Allocated");
-        UniformAnswer.path.get(0).printSolutionsStatistics("Answer");
-        System.out.println("\n\n");
-
     }
 }
