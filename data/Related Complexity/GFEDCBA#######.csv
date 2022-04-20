@@ -1,5 +1,0 @@
-algo,time,roughMemoryEstimate,answerDepth,answerCost,startState,processedNodes,nodeInstancesCreated
-BFS,0.314,10902,7,20,GFEDCBA######,1767,21833
-DFS,0.836,41761,6929,13208,GFEDCBA######,12171,68508
-Uniform,1.977,38440,7,20,GFEDCBA######,23435,194935
-IterativeDeepening,2.015,30,7,20,GFEDCBA######,132,5770
