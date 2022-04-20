@@ -49,7 +49,7 @@ public class MainFrame extends javax.swing.JFrame {
 
 		startingPosLabel.setText("Starting Position:");
 
-		startPosText.setText("BC|AD");
+		startPosText.setText("BC#AD");
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);

@@ -1,9 +1,30 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.time.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.math.BigInteger;
+import java.util.Collections;
+
+class row {
+    String algo;
+    String time;
+    String roughMemoryEstimate;
+    String answerDepth;
+    String answerCost;
+    String startState;
+    String processedNodes;
+    String nodeInstancesCreated;
+}
 
 public class Solver {
     Node InitialState;
@@ -215,5 +236,116 @@ public class Solver {
         answer.OpenSetSize = OpenSet.size();
         answer.ClosedSetSize = ClosedSet.size();
         return answer;
+    }
+
+    static String shuffle(String s) {
+        var chars = s.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+        ;
+        Collections.shuffle(chars);
+        return chars.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining());
+    }
+
+    private static void out(row r, String path) {
+        try {
+            // Creates a file in the given path if the file doesn't exists,
+            FileWriter myWriter = new FileWriter(path + ".csv", true);
+            myWriter.write(
+                    r.algo
+                            + "," + r.time
+                            + "," + r.roughMemoryEstimate
+                            + "," + r.answerDepth
+                            + "," + r.answerCost
+                            + "," + r.startState
+                            + "," + r.processedNodes
+                            + "," + r.nodeInstancesCreated
+                            + "\n");
+            myWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void f(String input, String dir) {
+        var start_state = new Node(input);
+        var model = new Solver(start_state);
+        var augDir = "data/" + ((dir != null) ? dir : "") + "/";
+        try {
+            // Creates a file in the given path if the file doesn't exists,
+            if ((new File(augDir + input)).exists())
+                return;
+            if (dir != null) {
+                FileWriter myWriter = new FileWriter(augDir + input + ".csv");
+                myWriter.write("algo"
+                        + "," + "time"
+                        + "," + "roughMemoryEstimate"
+                        + "," + "answerDepth"
+                        + "," + "answerCost"
+                        + "," + "startState"
+                        + "," + "processedNodes"
+                        + "," + "nodeInstancesCreated"
+                        + "\n");
+                myWriter.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Instant before = Instant.now();
+
+        row r = new row();
+        for (var algoNum = 0; algoNum < 4; algoNum++) {
+            Node.nOfNodes = 0;
+            Solver.SolutionWithStatistics algoAnswer = switch (algoNum) {
+                case 0 -> model.solveBFS();
+                case 1 -> model.solveDFS();
+                case 2 -> model.solveUniform();
+                // case 3 -> model.solveDFSLimited(limit);
+                default -> model.solveIterativeDeepening();
+            };
+            r.algo = switch (algoNum) {
+                case 0 -> "BFS";
+                case 1 -> "DFS";
+                case 2 -> "Uniform";
+                default -> "IterativeDeepening";
+            };
+            Instant after = Instant.now();
+
+            r.startState = (start_state.toString());
+            if (algoAnswer.isFound) {
+                r.answerDepth = String.valueOf(model.depth);
+                r.answerCost = String.valueOf(model.g);
+            } else {
+            }
+            r.processedNodes = String.valueOf(algoAnswer.processedNodes);
+            r.time = String.valueOf((double) Duration.between(before, after).toMillis() / 1000);
+            r.roughMemoryEstimate = String.valueOf(algoAnswer.ClosedSetSize + algoAnswer.OpenSetSize);
+            r.nodeInstancesCreated = String.valueOf(Node.nOfNodes);
+            if (dir == null)
+                out(r, augDir + "n_" + input.length() / 2);
+            else
+                out(r, augDir + input);
+        }
+    }
+
+    public static void main(String[] args) {
+        // f("AB#C##");
+        String tmp = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String alphabet = (new StringBuffer(tmp)).reverse().toString();
+        boolean first = false;
+        int fac = 720;
+        for (var i = 7; i < 25; i++) {
+            var seed = alphabet.substring(tmp.length() - i, tmp.length())
+                    + "#".repeat(i - 1);
+            var startState = seed + "#";
+            fac = fac * i;
+            for (var j = (first) ? 38 : 1; j <= fac; j++) {
+                System.out.println(i + "> " + j + "/" + String.valueOf(fac));
+                var shuffledStartState = shuffle(seed) + "#";
+                f(startState, "Related Complexity");
+                f(shuffledStartState, null);
+            }
+            first = false;
+        }
     }
 }

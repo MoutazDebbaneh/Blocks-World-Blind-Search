@@ -122,11 +122,11 @@ public class BlockStack implements Comparable<BlockStack> {
     }
 
     public void decoratedPrint() {
-        System.out.println("|" + this.toString() + "<-");
+        System.out.println("#" + this.toString() + "<-");
     }
 
     public String decoratedString() {
-        return "|" + this.toString() + "<-\n";
+        return "#" + this.toString() + "<-\n";
     }
 
     @Override

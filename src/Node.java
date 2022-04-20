@@ -20,11 +20,11 @@ public class Node implements Comparable<Node> {
 
 	/**
 	 * constructs a Node form a string with the following format
-	 * content of stack "|" content of stack
+	 * content of stack "#" content of stack
 	 * <p>
 	 * for example:
 	 * <p>
-	 * ABC|EF|HG
+	 * ABC#EF#HG
 	 * corresponds to
 	 * <p>
 	 * C
@@ -39,7 +39,7 @@ public class Node implements Comparable<Node> {
 	 */
 	Node(String input) {
 		Node.nOfNodes += 1;
-		List<String> state = Arrays.asList(input.split("\\|"));
+		List<String> state = Arrays.asList(input.split("#"));
 		Integer problemSize = state.stream().map((s) -> {
 			return s.length();
 		}).reduce((lft, rgt) -> {
@@ -214,7 +214,7 @@ public class Node implements Comparable<Node> {
 				sb.append(c);
 			}
 			if (i < stacks.size() - 1)
-				sb.append("|");
+				sb.append("#");
 		}
 		return sb.toString();
 	}
