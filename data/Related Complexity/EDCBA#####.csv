@@ -1,0 +1,5 @@
+algo,time,roughMemoryEstimate,answerDepth,answerCost,startState,processedNodes,nodeInstancesCreated
+BFS,0.002,273,5,12,EDCBA####,59,450
+DFS,0.003,100,15,28,EDCBA####,16,95
+Uniform,0.01,542,5,12,EDCBA####,279,1693
+IterativeDeepening,0.013,16,5,12,EDCBA####,22,132
